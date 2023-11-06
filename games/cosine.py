@@ -33,7 +33,7 @@ class MuZeroConfig:
         self.num_workers = 1  # Number of simultaneous threads/workers self-playing to feed the replay buffer
         self.selfplay_on_gpu = False
         self.max_moves = 50  # Maximum number of moves if game is not finished before
-        self.num_simulations = 100  # Number of future moves self-simulated
+        self.num_simulations = 500  # Number of future moves self-simulated
         self.discount = 0.997  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
@@ -73,7 +73,7 @@ class MuZeroConfig:
             __file__).stem / datetime.datetime.now().strftime(
             "%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
-        self.training_steps = 10000  # Total number of training steps (ie weights update according to a batch)
+        self.training_steps = 50000  # Total number of training steps (ie weights update according to a batch)
         self.batch_size = 128  # Number of parts of games to train on at each training step
         self.checkpoint_interval = 10  # Number of training steps before using the model for self-playing
         self.value_loss_weight = 1  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
@@ -228,7 +228,7 @@ class Cosine:
         # self.actions.append(action)
         # self.ys.append(self.state[:, :, -1].item())
         self.start_x += 1
-        cur_val = numpy.array([[[math.cos(self.start_x) + 1]]], dtype="float32")
+        cur_val = numpy.array([[[math.cos(self.start_x) * 10 + 1]]], dtype="float32")
         self.state = numpy.concatenate((self.state[:, :, 1:], cur_val), axis=-1, dtype="float32")
 
         reward = self.get_reward(action)
@@ -272,7 +272,7 @@ class Cosine:
     def random_start(self):
         self.start_x = random.randint(-10000, 10000)
         start_xs = [i for i in range(self.start_x - 9, self.start_x + 1)]
-        start_ys = [[[math.cos(x) + 1 for x in start_xs]]]
+        start_ys = [[[math.cos(x) * 10 + 1 for x in start_xs]]]
         start_ys = numpy.array(start_ys, dtype="float32")
         return start_ys
 
